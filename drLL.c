@@ -130,7 +130,12 @@ void MatchSymbol (int expected_token)
 
 // #define ParseLParen() 	MatchSymbol ('(') ; // More concise and efficient definitions
 // #define ParseRParen() 	MatchSymbol (')') ; ///   rather than using functions
-											/// The actual recomendation is to use MatchSymbol in the code rather than theese macros
+
+/// The actual recomendation is to use MatchSymbol in the code rather than theese macros
+
+/*
+   O -> + | - | * | /
+*/
 
 int ParseO()
 {
@@ -230,10 +235,11 @@ void ParseYourGrammar()
     ParseE();
 }
 
-void ParseAxiom()
-{
-    ParseYourGrammar();
 
+
+void ParseAxiom () 
+{									/// Axiom ::= \n
+	ParseYourGrammar () ;			
     if (tokens.token == '\n') {
         printf("\n");
         MatchSymbol('\n');
