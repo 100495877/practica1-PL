@@ -1,5 +1,5 @@
-//  TeamNumber , TeamMember1-name , TeamMember2-name
-//  email for TeamMember1 ,  email for TeamMember2
+//  119 , Diego , Iñigo
+//  100522343@alumnos.uc3m.es ,  100495877@alumnos.uc3m.es
 
 #include <ctype.h>
 #include <stdio.h>
