@@ -12,10 +12,6 @@
 
 void ParseYourGrammar () ; 		/// Dummy Parser
 void ParseAxiom () ;			/// Prototype for forward reference 		
-void ParseE();
-void ParseR();
-int ParseO();
-
 
 struct s_tokens {
 	int token ;					// Here we store the current token/literal 
@@ -132,116 +128,23 @@ void MatchSymbol (int expected_token)
 // #define ParseRParen() 	MatchSymbol (')') ; ///   rather than using functions
 											/// The actual recomendation is to use MatchSymbol in the code rather than theese macros
 
-int ParseO()
+
+void ParseYourGrammar ()
 {
-    int op_leido;
-
-    if (tokens.token == T_OPERATOR) {
-        op_leido = tokens.token_val;
-        MatchSymbol(T_OPERATOR);
-        return op_leido;
-    }
-
-    rd_syntax_error(T_OPERATOR, tokens.token,
-                    "Error: se esperaba operador (+,-,*,/), pero se leyo %d\n");
-    return 0;
 }
 
-/*
-   E -> (R | d | v
-*/
-void ParseE()
-{
-    if (tokens.token == T_NUMBER) {
-        printf("%d", tokens.number);
-        MatchSymbol(T_NUMBER);
-    }
-    else if (tokens.token == T_VARIABLE) {
-        printf("%s", tokens.variable_name);
-        MatchSymbol(T_VARIABLE);
-    }
-    else if (tokens.token == '(') {
-        MatchSymbol('(');
-        ParseR();
-    }
-    else {
-        rd_syntax_error(-1, tokens.token,
-                        "Error sintactico en E: token inesperado %d\n");
-    }
+
+void ParseAxiom () 
+{									/// Axiom ::= \n
+	ParseYourGrammar () ;			/// Dummy Parser. Complete this with your design								
+	if (tokens.token == '\n') {	
+	    printf ("\n") ; 
+		MatchSymbol ('\n') ;		
+	} else { 
+		rd_syntax_error (-1, tokens.token, "-- Unexpected Token (Expected:%d=None, Read:%d) at end of Parsing\n") ;
+	}
 }
 
-/*
-   R -> O E E ) | = v E ) | ? E E E )
-*/
-void ParseR()
-{
-    if (tokens.token == T_OPERATOR) {
-        /* R -> O E E ) */
-        int op = ParseO();
-
-        printf("(");
-        ParseE();
-        printf(" %c ", op);
-        ParseE();
-        printf(")");
-
-        MatchSymbol(')');
-    }
-    else if (tokens.token == '=') {
-        /* R -> = v E ) */
-        MatchSymbol('=');
-
-        if (tokens.token != T_VARIABLE) {
-            rd_syntax_error(T_VARIABLE, tokens.token,
-                            "Error sintactico: se esperaba variable tras '='\n");
-        }
-
-        printf("(");
-        printf("%s", tokens.variable_name);
-        MatchSymbol(T_VARIABLE);
-        printf(" = ");
-        ParseE();
-        printf(")");
-
-        MatchSymbol(')');
-    }
-    else if (tokens.token == '?') {
-        /* R -> ? E E E ) */
-        MatchSymbol('?');
-
-        printf("(");
-        ParseE();
-        printf(" ? ");
-        ParseE();
-        printf(" : ");
-        ParseE();
-        printf(")");
-
-        MatchSymbol(')');
-    }
-    else {
-        rd_syntax_error(-1, tokens.token,
-                        "Error sintactico en R: token inesperado %d\n");
-    }
-}
-
-void ParseYourGrammar()
-{
-    ParseE();
-}
-
-void ParseAxiom()
-{
-    ParseYourGrammar();
-
-    if (tokens.token == '\n') {
-        printf("\n");
-        MatchSymbol('\n');
-    } else {
-        rd_syntax_error('\n', tokens.token,
-                        "-- Unexpected Token (Expected:%d, Read:%d) at end of line\n");
-    }
-}
 
 int main (int argc, char **argv) 
 {
