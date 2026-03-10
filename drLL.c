@@ -1,5 +1,5 @@
-//  TeamNumber , TeamMember1-name , TeamMember2-name
-//  email for TeamMember1 ,  email for TeamMember2
+//  119 , Iñigo Estebaranz Rosillo, Diego Palmier Trapiella
+//  100495877@alumnos.uc3m.es ,  100522343@alumnos.uc3m.es
 
 #include <ctype.h>
 #include <stdio.h>
@@ -128,22 +128,74 @@ void MatchSymbol (int expected_token)
 // #define ParseRParen() 	MatchSymbol (')') ; ///   rather than using functions
 											/// The actual recomendation is to use MatchSymbol in the code rather than theese macros
 
+int ParseO() {
+    // Según tu gramática: O -> + | - | * | /
+    int op_leido = tokens.token_val; 
+
+    if (tokens.token == T_OPERATOR) {
+        MatchSymbol(T_OPERATOR); // Reconoce el operador y avanza
+    } else {
+        rd_syntax_error(T_OPERATOR, tokens.token, "Error: Se esperaba un operador (+,-,*,/)");
+    }
+
+    return op_leido; // Devolvemos el carácter (+, -, etc.) para usarlo en la infija
+}
+
+void ParseE() {
+    if (tokens.token == T_NUMBER) {
+        printf("%d", tokens.number);
+        MatchSymbol(T_NUMBER);
+    } 
+    else if (tokens.token == T_VARIABLE) {
+        printf("%s", tokens.variable_name); 
+        MatchSymbol(T_VARIABLE);
+    } 
+    else if (tokens.token == '(') {
+        MatchSymbol('(');
+        printf("("); // Paréntesis de apertura para infija 
+
+        // --- Aquí aplicamos la regla E -> (O E E) ---
+        int operador = ParseO(); // Llamamos al No Terminal O
+        
+        ParseE();                // Primer parámetro (E)
+        printf("%c", operador);  // Operador en medio (In-order) 
+        ParseE();                // Segundo parámetro (E)
+        // --------------------------------------------
+
+        MatchSymbol(')');
+        printf(")"); // Paréntesis de cierre para infija 
+    } 
+    else {
+        rd_syntax_error(T_NUMBER, tokens.token, "Error sintáctico en línea %d");
+    }
+}
+
 
 void ParseYourGrammar ()
 {
+    ParseE();
 }
 
 
-void ParseAxiom () 
-{									/// Axiom ::= \n
-	ParseYourGrammar () ;			/// Dummy Parser. Complete this with your design								
-	if (tokens.token == '\n') {	
-	    printf ("\n") ; 
-		MatchSymbol ('\n') ;		
-	} else { 
-		rd_syntax_error (-1, tokens.token, "-- Unexpected Token (Expected:%d=None, Read:%d) at end of Parsing\n") ;
-	}
+void ParseAxiom() 
+{                                   
+    // 1. Llamamos a la función que inicia el procesamiento de la expresión
+    ParseYourGrammar();                                   
+    
+    // 2. Verificamos que la expresión termine con un salto de línea 
+    if (tokens.token == '\n') { 
+        // 3. Imprimimos el salto de línea en la salida (notación infija terminada en \n) 
+        printf("\n"); 
+        
+        // 4. Consumimos el token '\n' y leemos el primer token de la siguiente línea
+        MatchSymbol('\n');        
+    } else { 
+        // Si después de la expresión no hay un \n, es un error sintáctico 
+        rd_syntax_error('\n', tokens.token, "-- Unexpected Token (Expected:%d, Read:%d) at end of line\n");
+    }
 }
+
+
 
 
 int main (int argc, char **argv) 
